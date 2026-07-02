@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Дашборд — Анализ данных из Excel</title>
+  <meta name="description" content="Универсальный интерактивный дашборд для анализа табличных данных из Excel">
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Plotly.js -->
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+  <!-- SheetJS for Excel parsing -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+
+  <!-- html2canvas + jsPDF for PDF export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="app-header">
+    <h1>Дашборд — Анализ табличных данных</h1>
+    <div class="header-actions">
+      <div class="file-upload-wrapper">
+        <button class="btn btn-primary" onclick="document.getElementById('file-input').click()">Загрузить Excel</button>
+        <input type="file" id="file-input" accept=".xlsx,.xls,.csv">
+      </div>
+      <button class="btn btn-outline" id="load-sample">Демо-данные</button>
+      <button class="btn btn-outline" id="pdf-export">PDF</button>
+    </div>
+  </header>
+
+  <!-- Drop zone -->
+  <div id="drop-zone" class="drop-zone">
+    <p>Перетащите Excel-файл сюда</p>
+  </div>
+
+  <!-- Layout -->
+  <div class="app-layout">
+
+    <!-- Left: Filters -->
+    <aside class="filter-panel" id="filter-panel">
+      <h3 class="filter-title">Фильтры</h3>
+      <p class="text-muted" style="font-size:0.85rem;">Загрузите Excel-файл для активации фильтров</p>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <!-- KPI Bar -->
+      <section class="kpi-bar" id="kpi-bar">
+        <div class="kpi-card">
+          <div class="kpi-label">Ожидание данных</div>
+          <div class="kpi-value">—</div>
+          <div class="kpi-sub">Загрузите Excel-файл</div>
+        </div>
+      </section>
+
+      <!-- Charts Grid -->
+      <section class="charts-grid">
+
+        <div class="chart-container" id="chart-programs">
+          <h3>Сумма по строкам</h3>
+        </div>
+
+        <div class="chart-container" id="chart-territories">
+          <h3>Распределение по колонкам</h3>
+        </div>
+
+        <div class="chart-container" id="chart-stacked">
+          <h3>Значения по строкам для выбранной колонки</h3>
+          <p class="text-muted" style="font-size:0.8rem;">Выберите колонку на диаграмме или вкладках ниже</p>
+        </div>
+
+        <div class="chart-container full-width" id="chart-heatmap">
+          <h3>Тепловая матрица: строки vs колонки</h3>
+        </div>
+
+      </section>
+
+      <!-- Table -->
+      <section class="table-container" id="table-container">
+        <p class="text-muted text-center" style="padding:20px;">Загрузите Excel-файл для отображения таблицы</p>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Drag & drop + Scripts -->
+  <script>
+    (function() {
+      const dz = document.getElementById('drop-zone');
+      if (!dz) return;
+
+      ['dragenter', 'dragover'].forEach(ev => {
+        dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('dz-active'); });
+      });
+      ['dragleave', 'drop'].forEach(ev => {
+        dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('dz-active'); });
+      });
+      dz.addEventListener('drop', e => {
+        const file = e.dataTransfer.files[0];
+        if (file && (file.name.endsWith('.xlsx') || file.name.endsWith('.xls') || file.name.endsWith('.csv'))) {
+          const input = document.getElementById('file-input');
+          const dt = new DataTransfer();
+          dt.items.add(file);
+          input.files = dt.files;
+          input.dispatchEvent(new Event('change'));
+        }
+      });
+    })();
+  </script>
+
+  <script src="js/parser.js"></script>
+  <script src="js/kpi.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/filters.js"></script>
+  <script src="js/table.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

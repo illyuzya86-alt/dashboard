@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Дашборд</title>
+
+  <!-- Google Charts -->
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #1a73e8;
+      --primary-dark: #1557b0;
+      --primary-light: #e8f0fe;
+      --success: #188038;
+      --warning: #f9ab00;
+      --text: #202124;
+      --text-sec: #5f6368;
+      --bg: #f8f9fa;
+      --card: #fff;
+      --border: #dadce0;
+      --radius: 8px;
+      --shadow: 0 1px 4px rgba(0,0,0,0.08);
+      --font: 'Google Sans', Roboto, Arial, sans-serif;
+    }
+    body {
+      font-family: var(--font);
+      font-size: 13px;
+      color: var(--text);
+      background: var(--bg);
+      padding: 12px;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--primary);
+    }
+    .header h1 { font-size: 16px; font-weight: 500; color: var(--primary); }
+    .header .refresh-btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 14px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: var(--font);
+    }
+    .header .refresh-btn:hover { background: var(--primary-dark); }
+
+    /* KPI */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .kpi-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 12px;
+      box-shadow: var(--shadow);
+      border-left: 4px solid var(--primary);
+    }
+    .kpi-card .label { font-size: 10px; color: var(--text-sec); text-transform: uppercase; letter-spacing: 0.5px; }
+    .kpi-card .value { font-size: 20px; font-weight: 500; color: var(--primary-dark); margin-top: 2px; }
+    .kpi-card .sub { font-size: 11px; color: var(--text-sec); margin-top: 2px; }
+
+    /* Charts */
+    .chart-box {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 8px;
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+    }
+    .chart-box h3 { font-size: 12px; font-weight: 500; color: var(--text-sec); margin-bottom: 6px; }
+    .chart-box .chart { width: 100%; min-height: 200px; }
+
+    /* Table wrapper */
+    .table-wrap {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 8px;
+      box-shadow: var(--shadow);
+      overflow-x: auto;
+    }
+    .table-wrap table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .table-wrap th {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      padding: 6px 8px;
+      text-align: left;
+      font-weight: 500;
+      white-space: nowrap;
+      cursor: pointer;
+      position: sticky;
+      top: 0;
+    }
+    .table-wrap th:hover { background: #d2e3fc; }
+    .table-wrap td {
+      padding: 4px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .table-wrap tr:hover { background: #f1f3f4; }
+    .table-wrap .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+      color: var(--text-sec);
+    }
+    .error {
+      background: #fce8e6;
+      color: #c5221f;
+      padding: 12px;
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .kpi-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>📊 Дашборд</h1>
+    <button class="refresh-btn" onclick="init()">⟳ Обновить</button>
+  </div>
+
+  <div id="app">
+    <div class="loading">Загрузка данных...</div>
+  </div>
+
+  <script>
+    google.charts.load('current', { packages: ['corechart', 'bar'] });
+
+    let allData = null;
+
+    function init() {
+      const app = document.getElementById('app');
+      app.innerHTML = '<div class="loading">Загрузка данных...</div>';
+
+      google.script.run
+        .withSuccessHandler(onData)
+        .withFailureHandler((e) => {
+          app.innerHTML = '<div class="error">Ошибка: ' + e.message + '</div>';
+        })
+        .getSheetData();
+    }
+
+    function onData(data) {
+      if (data.error) {
+        document.getElementById('app').innerHTML = '<div class="error">' + data.error + '</div>';
+        return;
+      }
+      if (!data.programs || data.programs.length === 0) {
+        document.getElementById('app').innerHTML = '<div class="error">Нет данных для отображения</div>';
+        return;
+      }
+      allData = data;
+      renderDashboard(data);
+    }
+
+    function renderDashboard(d) {
+      const { programs, dataCols, colNames, headers } = d;
+
+      // Вычисления
+      function progTotal(p) { return dataCols.reduce((s, c) => s + (p[c] || 0), 0); }
+      function colTotal(c) { return programs.reduce((s, p) => s + (p[c] || 0), 0); }
+
+      const grandTotal = programs.reduce((s, p) => s + progTotal(p), 0);
+
+      // Топ-3 строк
+      const topProgs = programs.slice().sort((a, b) => progTotal(b) - progTotal(a)).slice(0, 3);
+      const topCols = dataCols.map(c => ({ name: colNames[dataCols.indexOf(c)], value: colTotal(c) }))
+        .sort((a, b) => b.value - a.value).slice(0, 3);
+
+      // ─── HTML ───
+      let html = '';
+
+      // KPI
+      html += '<div class="kpi-grid">';
+      html += '<div class="kpi-card"><div class="label">Общая сумма</div><div class="value">' + grandTotal.toLocaleString() + '</div></div>';
+      html += '<div class="kpi-card"><div class="label">Топ-3 строк</div>' +
+        topProgs.map(p => '<div class="sub"><b>' + esc(p.name) + '</b>: ' + progTotal(p).toLocaleString() + '</div>').join('') + '</div>';
+      html += '<div class="kpi-card"><div class="label">Топ-3 колонок</div>' +
+        topCols.map(c => '<div class="sub"><b>' + esc(c.name) + '</b>: ' + c.value.toLocaleString() + '</div>').join('') + '</div>';
+      html += '<div class="kpi-card"><div class="label">Строк / Колонок</div><div class="value">' + programs.length + ' × ' + dataCols.length + '</div></div>';
+      html += '</div>';
+
+      html += '<div class="chart-box"><h3>Сумма по строкам</h3><div id="chart1" class="chart"></div></div>';
+      html += '<div class="chart-box"><h3>Топ-5 колонок</h3><div id="chart2" class="chart"></div></div>';
+
+      // Таблица
+      html += '<div class="table-wrap"><table><thead><tr>';
+      html += '<th>Наименование</th>';
+      for (const c of dataCols) html += '<th class="num">' + esc(colNames[dataCols.indexOf(c)]) + '</th>';
+      html += '<th class="num">Сумма</th>';
+      html += '</tr></thead><tbody>';
+      for (const p of programs) {
+        html += '<tr><td>' + esc(p.name) + '</td>';
+        for (const c of dataCols) html += '<td class="num">' + (p[c] || 0).toLocaleString() + '</td>';
+        html += '<td class="num"><b>' + progTotal(p).toLocaleString() + '</b></td></tr>';
+      }
+      html += '</tbody></table></div>';
+
+      document.getElementById('app').innerHTML = html;
+
+      // Рисуем графики
+      google.charts.setOnLoadCallback(() => {
+        drawChart1(programs, dataCols);
+        drawChart2(programs, dataCols, colNames);
+      });
+    }
+
+    function drawChart1(programs, dataCols) {
+      const sorted = programs.slice().sort((a, b) => {
+        const sa = dataCols.reduce((s, c) => s + (a[c] || 0), 0);
+        const sb = dataCols.reduce((s, c) => s + (b[c] || 0), 0);
+        return sb - sa;
+      });
+
+      const data = new google.visualization.DataTable();
+      data.addColumn('string', 'Программа');
+      data.addColumn('number', 'Сумма');
+      data.addRows(sorted.map(p => [p.name, dataCols.reduce((s, c) => s + (p[c] || 0), 0)]));
+
+      const opts = {
+        title: '',
+        bars: 'horizontal',
+        height: Math.max(200, sorted.length * 28 + 30),
+        colors: ['#1a73e8'],
+        chartArea: { left: '30%', width: '65%', top: 10, height: '80%' },
+        hAxis: { title: '' },
+        vAxis: { textStyle: { fontSize: 11 } },
+        legend: { position: 'none' },
+        backgroundColor: 'transparent',
+      };
+      const chart = new google.visualization.BarChart(document.getElementById('chart1'));
+      chart.draw(data, opts);
+    }
+
+    function drawChart2(programs, dataCols, colNames) {
+      const totals = dataCols.map(c => ({ name: colNames[dataCols.indexOf(c)], v: programs.reduce((s, p) => s + (p[c] || 0), 0) }))
+        .sort((a, b) => b.v - a.v);
+
+      const top5 = totals.slice(0, 5);
+      const otherSum = totals.slice(5).reduce((s, c) => s + c.v, 0);
+
+      const labels = top5.map(c => c.name);
+      const values = top5.map(c => c.v);
+      if (otherSum > 0 && totals.length > 5) { labels.push('Прочие'); values.push(Math.round(otherSum)); }
+
+      const data = new google.visualization.DataTable();
+      data.addColumn('string', 'Колонка');
+      data.addColumn('number', 'Значение');
+      data.addRows(labels.map((l, i) => [l, values[i]]));
+
+      const opts = {
+        title: '',
+        pieHole: 0,
+        height: 220,
+        colors: ['#1a73e8', '#188038', '#f9ab00', '#ea4335', '#9334e6', '#bdbdbd'],
+        legend: { position: 'right', textStyle: { fontSize: 11 } },
+        pieSliceText: 'label',
+        backgroundColor: 'transparent',
+        chartArea: { left: 10, top: 10, width: '60%', height: '80%' },
+      };
+      const chart = new google.visualization.PieChart(document.getElementById('chart2'));
+      chart.draw(data, opts);
+    }
+
+    function esc(s) {
+      if (!s) return '';
+      const d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    window.addEventListener('load', init);
+  </script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Unit-тесты дашборда</title>
+  <style>
+    body { font: 14px/1.5 'Segoe UI', Arial, sans-serif; background: #f5f7fa; padding: 20px; max-width: 900px; margin: 0 auto; }
+    h1 { color: #0d47a1; border-bottom: 2px solid #1565c0; padding-bottom: 8px; }
+    h2 { color: #1565c0; margin-top: 24px; }
+    .result { margin: 6px 0; padding: 8px 12px; border-radius: 4px; border-left: 4px solid; }
+    .pass { border-left-color: #2e7d32; background: #e8f5e9; }
+    .fail { border-left-color: #c62828; background: #ffebee; }
+    .summary { margin-top: 20px; padding: 12px; border-radius: 4px; font-weight: 600; }
+    .summary.all-pass { background: #e8f5e9; color: #2e7d32; }
+    .summary.has-fail { background: #ffebee; color: #c62828; }
+  </style>
+</head>
+<body>
+  <h1>Unit-тесты дашборда</h1>
+  <div id="output"></div>
+
+  <script src="../js/parser.js"></script>
+  <script src="../js/kpi.js"></script>
+  <script src="../js/filters.js"></script>
+
+  <script>
+    const out = document.getElementById('output');
+    let passed = 0, failed = 0;
+
+    function assert(condition, msg) {
+      const div = document.createElement('div');
+      div.className = 'result ' + (condition ? 'pass' : 'fail');
+      div.textContent = (condition ? '✓ ' : '✗ ') + msg;
+      out.appendChild(div);
+      if (condition) passed++; else failed++;
+    }
+
+    function group(name) {
+      const h = document.createElement('h2');
+      h.textContent = name;
+      out.appendChild(h);
+    }
+
+    // --- Test data ---
+    const testData = DashboardParser.fromJSON({
+      headers: ['Программа', 'Когалым', 'Лангепас', 'СВО', 'Служащие', 'ИТОГО'],
+      rows: [
+        ['Охрана труда (16 часов)', 10, 5, 2, 3, 20],
+        ['Пожарная безопасность (24 часа)', 15, 8, 3, 4, 30],
+        ['Первая помощь (8 часов)', 20, 12, 5, 8, 45],
+        ['Электробезопасность (40 часов)', 5, 3, 1, 1, 10],
+        ['Работа на высоте (16 часов)', 8, 4, 2, 2, 16],
+      ]
+    });
+
+    const programs = testData.programs;
+    const dataCols = testData.dataCols;
+    const headers = testData.headers;
+
+    // dataCols should skip the last column (ИТОГО matches TOTAL_PATTERNS)
+    group('Парсинг JSON');
+
+    assert(programs.length === 5, `Загружено 5 программ, получено ${programs.length}`);
+    assert(dataCols.length === 4, `4 колонки данных, получено ${dataCols.length}`);
+
+    // Program names
+    assert(programs[0].name === 'Охрана труда (16 часов)', 'Имя 1-й программы');
+    assert(programs[4].name === 'Работа на высоте (16 часов)', 'Имя 5-й программы');
+
+    // Hours parsing
+    assert(programs[0].hours === 16, 'parseHours: 16 часов');
+    assert(programs[1].hours === 24, 'parseHours: 24 часа');
+    assert(programs[2].hours === 8, 'parseHours: 8 часов');
+
+    // Data values (stored by column index)
+    assert(programs[0][dataCols[0]] === 10, `Когалым (колонка ${dataCols[0]}): 10`);
+    assert(programs[1][dataCols[1]] === 8, `Лангепас (колонка ${dataCols[1]}): 8`);
+    assert(programs[2][dataCols[0]] === 20, `Первая помощь, Когалым: 20`);
+
+    // Totals
+    assert(programs[0].total === 20, `total охрана труда: ${programs[0].total}`);
+    assert(programs[2].total === 45, `total первая помощь: ${programs[2].total}`);
+
+    group('Парсинг — parseHours');
+
+    assert(DashboardParser.parseHours('Охрана труда (16 часов)') === 16, '16 часов');
+    assert(DashboardParser.parseHours('Курс (8 часов)') === 8, '8 часов');
+    assert(DashboardParser.parseHours('Без часов') === null, 'null для строки без часов');
+    assert(DashboardParser.parseHours('') === null, 'null для пустой строки');
+
+    group('KPI — общая сумма');
+
+    const total = DashboardKPI.totalSum(programs, dataCols);
+    assert(total === 121, `totalSum = ${total}, ожидалось 121`);
+
+    group('KPI — топ-3 программ');
+
+    const top3 = DashboardKPI.topPrograms(programs, dataCols, 3);
+    assert(top3.length === 3, '3 элемента');
+    assert(top3[0].name === 'Первая помощь (8 часов)', `Топ-1: ${top3[0].name}`);
+    assert(top3[0].value === 45, `Топ-1 значение: ${top3[0].value}`);
+
+    group('KPI — топ-3 колонок');
+
+    const topCols = DashboardKPI.topDataCols(programs, dataCols, headers, 3);
+    assert(topCols.length === 3, '3 элемента');
+    assert(topCols[0].name === 'Когалым', `Топ-1 колонка: ${topCols[0].name}`);
+    assert(topCols[0].value === 58, `Значение: ${topCols[0].value} (ожидалось 58)`);
+
+    group('KPI — среднее и медиана');
+
+    const avg = DashboardKPI.avgPerProgram(programs, dataCols);
+    assert(Math.abs(avg - 24.2) < 0.01, `Среднее: ${avg} (ожидалось 24.2)`);
+
+    const med = DashboardKPI.medianPerProgram(programs, dataCols);
+    assert(med === 20, `Медиана: ${med} (ожидалось 20)`);
+
+    const std = DashboardKPI.stdDev(programs, dataCols);
+    assert(Math.abs(std - 12.2) < 0.2, `Стд.отклонение: ${std.toFixed(2)} (~12.2)`);
+
+    group('KPI — порог');
+
+    const above20 = DashboardKPI.programsAboveThreshold(programs, dataCols, 20);
+    assert(above20 === 2, `Программ > 20: ${above20} (ожидалось 2)`);
+
+    const above40 = DashboardKPI.programsAboveThreshold(programs, dataCols, 40);
+    assert(above40 === 1, `Программ > 40: ${above40} (ожидалось 1)`);
+
+    group('KPI — computeAll');
+
+    const all = DashboardKPI.computeAll(programs, dataCols, headers, 50);
+    assert(all.total === 121, 'total');
+    assert(all.topPrograms.length === 3, 'topPrograms');
+    assert(all.topColumns.length === 3, 'topColumns');
+    assert(all.aboveThreshold === 0, 'aboveThreshold (50)');
+
+    group('KPI — суммы по колонкам');
+
+    const cTotals = DashboardKPI.colTotals(programs, dataCols, headers);
+    assert(cTotals['Когалым'] === 58, `Когалым: ${cTotals['Когалым']}`);
+    assert(cTotals['Лангепас'] === 32, `Лангепас: ${cTotals['Лангепас']}`);
+
+    group('KPI — разбивка по колонке');
+
+    const brk = DashboardKPI.rowBreakdownForCol(programs, dataCols[0]);
+    assert(brk.length === 5, '5 строк');
+    assert(brk[0].value === 10, `brk[0] = ${brk[0].value} (ожидалось 10)`);
+
+    group('Фильтрация');
+
+    const allProgs = testData.programs;
+    const allDCols = testData.dataCols;
+    const allHdrs = testData.headers;
+
+    const filterEl = document.createElement('div');
+    filterEl.id = 'filter-test';
+    document.body.appendChild(filterEl);
+    DashboardFilters.init(filterEl, allProgs, allDCols, allHdrs);
+
+    const fState = DashboardFilters.getState();
+    assert(fState.activeCols.length === 4, `4 активные колонки (получено ${fState.activeCols.length})`);
+    assert(fState.programs.length === 5, `5 выбранных программ (получено ${fState.programs.length})`);
+
+    const filteredAll = DashboardFilters.filterData(allProgs, fState);
+    assert(filteredAll.length === 5, 'filterData: все 5');
+
+    // Filter by hours: 16-24
+    const stateHours = {
+      ...fState,
+      hoursMin: 16, hoursMax: 24,
+    };
+    const filteredHours = DashboardFilters.filterData(allProgs, stateHours);
+    assert(filteredHours.length === 3, `filterData hours 16-24: ${filteredHours.length} (ожидалось 3)`);
+
+    // Filter by hours: 40 only
+    const stateHours40 = {
+      ...fState,
+      hoursMin: 40, hoursMax: 40,
+    };
+    const filteredHours40 = DashboardFilters.filterData(allProgs, stateHours40);
+    assert(filteredHours40.length === 1, `filterData hours 40: ${filteredHours40.length} (ожидалось 1)`);
+
+    // Filter active columns
+    const singleColState = { ...fState, activeCols: [dataCols[0]] };
+    const filteredCols = DashboardFilters.filterDataCols(allDCols, singleColState);
+    assert(filteredCols.length === 1, `filterDataCols: 1 (получено ${filteredCols.length})`);
+    assert(filteredCols[0] === dataCols[0], 'filterDataCols: правильная колонка');
+
+    // --- Summary ---
+    const summary = document.createElement('div');
+    summary.className = 'summary ' + (failed === 0 ? 'all-pass' : 'has-fail');
+    summary.textContent = `${passed} passed, ${failed} failed, ${passed + failed} total`;
+    out.appendChild(summary);
+  </script>
+</body>
+</html>

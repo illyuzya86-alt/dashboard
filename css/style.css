@@ -5,24 +5,24 @@
    ============================================================ */
 
 :root {
-  --primary: #1565c0;
-  --primary-dark: #0d47a1;
-  --primary-light: #42a5f5;
-  --primary-bg: #e3f2fd;
-  --accent: #fb8c00;
-  --success: #2e7d32;
-  --danger: #c62828;
-  --text: #212121;
-  --text-secondary: #616161;
+  --primary: #7a9e9f;
+  --primary-dark: #5c7d7e;
+  --primary-light: #b5d0d1;
+  --primary-bg: #eef4f2;
+  --accent: #c8956c;
+  --success: #7a9e7a;
+  --danger: #c87a7a;
+  --text: #2d2d2d;
+  --text-secondary: #6b6b6b;
   --text-light: #9e9e9e;
-  --bg: #f5f7fa;
+  --bg: #f7f5f0;
   --card-bg: #ffffff;
-  --border: #e0e0e0;
-  --shadow: 0 2px 8px rgba(0,0,0,0.08);
-  --radius: 8px;
-  --radius-sm: 4px;
-  --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
-  --transition: 0.2s ease;
+  --border: #e5e0d8;
+  --shadow: 0 2px 12px rgba(0,0,0,0.06);
+  --radius: 12px;
+  --radius-sm: 6px;
+  --font: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --transition: 0.25s ease;
 }
 
 *, *::before, *::after {
@@ -32,7 +32,7 @@
 }
 
 html {
-  font-size: 14px;
+  font-size: 16px;
   scroll-behavior: smooth;
 }
 
@@ -40,7 +40,7 @@ body {
   font-family: var(--font);
   color: var(--text);
   background: var(--bg);
-  line-height: 1.5;
+  line-height: 1.6;
   min-height: 100vh;
 }
 
@@ -50,7 +50,7 @@ body {
   display: none;
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(21, 101, 192, 0.08);
+  background: rgba(122, 158, 159, 0.1);
   border: 3px dashed var(--primary);
   z-index: 999;
   align-items: center;
@@ -60,12 +60,12 @@ body {
 
 .drop-zone p {
   background: var(--card-bg);
-  padding: 20px 40px;
+  padding: 24px 48px;
   border-radius: var(--radius);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
   font-size: 1.2rem;
   color: var(--primary);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .drop-zone.dz-active {
@@ -77,22 +77,22 @@ body {
 .app-header {
   background: linear-gradient(135deg, var(--primary-dark), var(--primary));
   color: #fff;
-  padding: 12px 20px;
+  padding: 16px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 10px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   position: sticky;
   top: 0;
   z-index: 100;
 }
 
 .app-header h1 {
-  font-size: 1.3rem;
-  font-weight: 600;
-  letter-spacing: 0.3px;
+  font-size: 1.4rem;
+  font-weight: 500;
+  letter-spacing: 0.2px;
 }
 
 .app-header .header-actions {
@@ -126,8 +126,8 @@ body {
 .app-layout {
   display: grid;
   grid-template-columns: 280px 1fr;
-  gap: 16px;
-  padding: 16px;
+  gap: 20px;
+  padding: 20px;
   max-width: 1600px;
   margin: 0 auto;
 }
@@ -136,11 +136,11 @@ body {
   background: var(--card-bg);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 16px;
+  padding: 20px;
   height: fit-content;
   position: sticky;
-  top: 80px;
-  max-height: calc(100vh - 100px);
+  top: 88px;
+  max-height: calc(100vh - 108px);
   overflow-y: auto;
 }
 
@@ -155,15 +155,15 @@ body {
 
 .kpi-bar {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
 }
 
 .kpi-card {
   background: var(--card-bg);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 16px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
   border-left: 4px solid var(--primary);
@@ -172,38 +172,40 @@ body {
 }
 
 .kpi-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
 }
 
 .kpi-card .kpi-label {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--text-secondary);
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   font-weight: 600;
 }
 
 .kpi-card .kpi-value {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.6rem;
+  font-weight: 600;
   color: var(--primary-dark);
   line-height: 1.2;
 }
 
 .kpi-card .kpi-sub {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: var(--text-light);
   margin-top: 4px;
 }
 
+.kpi-card:nth-child(1) { border-left-color: var(--primary); }
+.kpi-card:nth-child(1) .kpi-value { color: var(--primary-dark); }
 .kpi-card:nth-child(2) { border-left-color: var(--success); }
 .kpi-card:nth-child(2) .kpi-value { color: var(--success); }
 .kpi-card:nth-child(3) { border-left-color: var(--accent); }
 .kpi-card:nth-child(3) .kpi-value { color: var(--accent); }
-.kpi-card:nth-child(4) { border-left-color: var(--primary-light); }
-.kpi-card:nth-child(4) .kpi-value { color: var(--primary); }
+.kpi-card:nth-child(4) { border-left-color: #b0aac0; }
+.kpi-card:nth-child(4) .kpi-value { color: #7a6b8a; }
 
 .kpi-threshold {
   display: flex;
@@ -228,7 +230,7 @@ body {
   height: 100%;
   min-height: 200px;
   color: var(--text-light);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 /* ---- Charts ---- */
@@ -243,15 +245,17 @@ body {
   background: var(--card-bg);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 12px;
+  padding: 16px;
   min-height: 300px;
 }
 
 .chart-container h3 {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: var(--text-secondary);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
 }
 
 /* ---- Tabs for column selector ---- */
@@ -259,19 +263,19 @@ body {
 .col-tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  margin-bottom: 8px;
+  gap: 6px;
+  margin-bottom: 10px;
 }
 
 .col-tab {
-  padding: 4px 12px;
+  padding: 6px 14px;
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 20px;
   background: var(--card-bg);
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   transition: all var(--transition);
-  max-width: 180px;
+  max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -290,7 +294,7 @@ body {
   background: var(--card-bg);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 12px;
+  padding: 16px;
   overflow: hidden;
 }
 
@@ -298,16 +302,16 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 12px;
+  margin-bottom: 12px;
   flex-wrap: wrap;
 }
 
 .table-search {
-  padding: 8px 12px;
+  padding: 10px 14px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   flex: 1;
   min-width: 200px;
   outline: none;
@@ -316,7 +320,7 @@ body {
 
 .table-search:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 2px var(--primary-bg);
+  box-shadow: 0 0 0 3px var(--primary-bg);
 }
 
 .export-group {
@@ -328,10 +332,10 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 16px;
+  padding: 10px 18px;
   border: none;
   border-radius: var(--radius-sm);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
   transition: all var(--transition);
@@ -339,8 +343,8 @@ body {
 }
 
 .btn-sm {
-  padding: 6px 12px;
-  font-size: 0.8rem;
+  padding: 7px 14px;
+  font-size: 0.85rem;
 }
 
 .btn-primary {
@@ -372,7 +376,7 @@ body {
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   white-space: nowrap;
 }
 
@@ -380,7 +384,7 @@ body {
   background: var(--primary-bg);
   color: var(--primary-dark);
   font-weight: 600;
-  padding: 8px 10px;
+  padding: 10px 12px;
   text-align: left;
   cursor: pointer;
   user-select: none;
@@ -391,7 +395,7 @@ body {
 }
 
 .data-table th:hover {
-  background: #bbdefb;
+  background: #dce8e5;
 }
 
 .data-table th.sorted::after {
@@ -413,22 +417,22 @@ body {
 }
 
 .data-table td {
-  padding: 6px 10px;
+  padding: 8px 12px;
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
 }
 
 .data-table tbody tr:hover {
-  background: #f5f5f5;
+  background: #f5f2ed;
   cursor: pointer;
 }
 
 .data-table tbody tr:nth-child(even) {
-  background: #fafafa;
+  background: #fcfaf7;
 }
 
 .data-table tbody tr:nth-child(even):hover {
-  background: #f0f0f0;
+  background: #f0ece5;
 }
 
 .table-count {
@@ -441,24 +445,24 @@ body {
 /* ---- Filter Panel Styles ---- */
 
 .filter-title {
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 600;
   color: var(--text);
-  margin-bottom: 12px;
-  padding-bottom: 8px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
   border-bottom: 2px solid var(--primary);
 }
 
 .filter-group {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .filter-label {
   display: block;
   font-weight: 600;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--text-secondary);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
@@ -466,23 +470,25 @@ body {
 .filter-checkbox {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.85rem;
-  padding: 3px 0;
+  gap: 8px;
+  font-size: 0.9rem;
+  padding: 4px 0;
   cursor: pointer;
 }
 
 .filter-checkbox input[type="checkbox"] {
   accent-color: var(--primary);
   cursor: pointer;
+  width: 16px;
+  height: 16px;
 }
 
 .select-all {
   font-weight: 600;
   color: var(--primary);
   border-bottom: 1px solid var(--border);
-  padding-bottom: 6px;
-  margin-bottom: 4px;
+  padding-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .filter-scroll {
@@ -551,16 +557,17 @@ body {
 
 .toast {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  padding: 12px 20px;
+  bottom: 24px;
+  right: 24px;
+  padding: 14px 22px;
   border-radius: var(--radius);
   color: #fff;
   font-weight: 500;
   z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
   animation: slideIn 0.3s ease;
-  max-width: 400px;
+  max-width: 420px;
+  font-size: 0.95rem;
 }
 
 .toast.info { background: var(--primary); }
@@ -603,23 +610,27 @@ body {
   .app-header {
     flex-direction: column;
     text-align: center;
-    padding: 10px;
+    padding: 12px;
   }
   .app-header h1 {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
   }
   .kpi-bar {
     grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .kpi-card {
+    padding: 14px;
   }
   .kpi-card .kpi-value {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
   }
   .filter-panel {
     grid-template-columns: 1fr;
   }
   .app-layout {
-    padding: 10px;
-    gap: 10px;
+    padding: 12px;
+    gap: 12px;
   }
   .table-toolbar {
     flex-direction: column;

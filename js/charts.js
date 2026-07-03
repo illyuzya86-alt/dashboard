@@ -1,9 +1,9 @@
 const DashboardCharts = (() => {
   const colorScale = [
-    '#0d47a1', '#1565c0', '#1976d2', '#1e88e5', '#2196f3',
-    '#42a5f5', '#64b5f6', '#90caf9', '#bbdefb', '#e3f2fd',
-    '#ef5350', '#ab47bc', '#5c6bc0', '#26a69a', '#66bb6a',
-    '#ff7043', '#78909c', '#8d6e63',
+    '#7a9e9f', '#c8956c', '#9fb7a8', '#b0aac0', '#c4a882',
+    '#8fb5b5', '#d4b5a0', '#a8c4b8', '#c8b8a8', '#b8c8c8',
+    '#d4a898', '#a0b8b0', '#c8a8a8', '#b0c0a8', '#d0b8a0',
+    '#a8b8c0', '#c0a8b0', '#b8c0a8',
   ];
 
   function progTotal(prog, dataCols) {
@@ -182,8 +182,8 @@ const DashboardCharts = (() => {
     const trace = {
       z: zData, x: colLabels, y: progNames, type: 'heatmap',
       colorscale: [
-        [0, '#f5f5f5'], [0.1, '#bbdefb'], [0.3, '#64b5f6'],
-        [0.5, '#1e88e5'], [0.7, '#1565c0'], [1, '#0d47a1'],
+        [0, '#f7f5f0'], [0.15, '#dce8e5'], [0.35, '#b5d0d1'],
+        [0.55, '#7a9e9f'], [0.75, '#5c7d7e'], [1, '#3d5f60'],
       ],
       zmin: 0, zmax: maxVal, hoverongaps: false,
       hovertemplate: '<b>%{y}</b><br><b>%{x}</b><br>Значение: %{z}<extra></extra>',

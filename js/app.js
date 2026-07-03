@@ -69,12 +69,7 @@
   }
 
   function showWelcome() {
-    const msg = `<div style="padding:40px;text-align:center;color:#757575;">
-      <p style="font-size:1.1rem;margin-bottom:12px;">Загрузите Excel-файл (.xlsx)</p>
-      <p style="font-size:0.85rem;">Дашборд автоматически определит структуру таблицы и построит визуализации</p>
-      <p style="margin-top:12px;font-size:0.85rem;">Первая колонка = названия строк, остальные числовые колонки = данные</p>
-    </div>`;
-    DOM.chart1.innerHTML = msg;
+    DOM.chart1.innerHTML = '';
     DOM.kpiBar.innerHTML =
       `<div class="kpi-card"><div class="kpi-label">Ожидание данных</div><div class="kpi-value">—</div><div class="kpi-sub">Загрузите Excel-файл</div></div>`;
     DOM.tableContainer.innerHTML =

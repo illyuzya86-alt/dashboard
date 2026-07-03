@@ -234,8 +234,8 @@ body {
 /* ---- Charts ---- */
 
 .charts-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 16px;
 }
 
@@ -245,10 +245,6 @@ body {
   box-shadow: var(--shadow);
   padding: 12px;
   min-height: 300px;
-}
-
-.chart-container.full-width {
-  grid-column: 1 / -1;
 }
 
 .chart-container h3 {
@@ -584,12 +580,6 @@ body {
 
 /* ---- Responsive ---- */
 
-@media (max-width: 1200px) {
-  .charts-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
 @media (max-width: 992px) {
   .app-layout {
     grid-template-columns: 1fr;
@@ -625,9 +615,6 @@ body {
     font-size: 1.2rem;
   }
   .filter-panel {
-    grid-template-columns: 1fr;
-  }
-  .charts-grid {
     grid-template-columns: 1fr;
   }
   .app-layout {
